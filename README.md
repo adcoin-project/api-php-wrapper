@@ -1,5 +1,11 @@
 # AdCoin API client for PHP
 
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/adcoin-project/api-php-wrapper.php/graphs/commit-activity)
+[![GitHub contributors](https://img.shields.io/github/contributors/adcoin-project/api-php-wrapper.svg)](https://GitHub.com/adcoin-project/api-php-wrapper/graphs/contributors/)
+[![GitHub issues](https://img.shields.io/github/issues/adcoin-project/api-php-wrapper.svg)](https://github.com/adcoin-project/api-php-wrapper/issues/)
+[![Packagist](https://img.shields.io/packagist/v/adcoin-project/api-php-wrapper.svg)]()
+[![ForTheBadge built-with-love](http://ForTheBadge.com/images/badges/built-with-love.svg)](https://GitHub.com/adcoin-project/)
+
 Accept payments in AdCoin on your website or inside your platform in minutes with the official AdCoin Payment Gateway. No fixed costs or punishing registration procedures. Receive payments anonymous and without transaction or registration costs for both the receiver and sender. 
 
 This project serves as an easy-to-use PHP wrapper for the functionalities provided by the AdCoin Wallet API.
