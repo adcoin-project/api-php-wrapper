@@ -1,0 +1,17 @@
+{
+    "name": "adcoin-project/api-php-wrapper",
+    "description": "This PHP library is a wrapper for the AdCoin API",
+    "type": "library",
+    "authors": [
+        {
+            "name": "The AdCoin team",
+            "email": "info@getadcoin.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "AdCoin\\": "src/"
+        }
+    }
+}
