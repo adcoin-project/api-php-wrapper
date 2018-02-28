@@ -6,6 +6,7 @@ use AdCoin\Exception\ClientException;
 
 /**
  * Wrapper class for the payment gateway.
+ * Compliant to WordPress' code standards.
  */
 class PaymentGateway
 {
@@ -55,7 +56,7 @@ class PaymentGateway
      * @return array $result The payment that is created, the user should be
      *                       redirected to links.paymentUrl
      */
-    public function openPayment($amount, $description, $redirectUrl, $webhookUrl, $metadata = [])
+    public function openPayment($amount, $description, $redirectUrl, $webhookUrl, $metadata = array())
     {
         if (!is_float($amount)) {
             throw new \InvalidArgumentException('$amount should be a float');
@@ -77,13 +78,13 @@ class PaymentGateway
             throw new \Exception('$metadata should be a array');
         }
 
-        $response = $this->call('/payments', [
+        $response = $this->call('/payments', array(
             'amount' => $amount,
             'redirectUrl' => $redirectUrl,
             'webhookUrl' => $webhookUrl,
             'description' => $description,
             'metadata' => json_encode($metadata),
-        ], 'POST');
+        ), 'POST');
 
         return $response;
     }
@@ -123,30 +124,52 @@ class PaymentGateway
      *
      * @return array $response
      */
-    private function call($url, array $parameters = [], $method = 'GET')
+    private function call($url, array $parameters = array(), $method = 'GET')
     {
-        $headers = [
-            'X-AUTH-TOKEN: '.$this->apiKey,
-        ];
+		if (function_exists('wp_remote_post')) {
+			// Use WordPress' HTTP API
+			$response = wp_remote_post(
+				'https://wallet.getadcoin.com/api'.$url,
+				array(
+					'method'      => $method,
+					'timeout'     => 20,
+					'redirection' => 5,
+					'httpversion' => '1.0',
+					'blocking'    => true,
+					'headers'     => array('X-AUTH-TOKEN' => $this->apiKey),
+					'body'        => $parameters,
+					'cookies'     => array()
+				)
+			);
+			$body = wp_remote_retrieve_body($response);
+			$status = wp_remote_retrieve_response_code($response);
+			
+		} else {
+			// Use CURL
+			$headers = [
+				'X-AUTH-TOKEN: '.$this->apiKey,
+			];
 
-        $curl = curl_init('https://wallet.getadcoin.com/api'.$url);
+			$curl = curl_init('https://wallet.getadcoin.com/api'.$url);
 
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+			curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
-        if ($method === 'POST') {
-            curl_setopt($curl, CURLOPT_POST, true);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($parameters));
-        }
+			if ($method === 'POST') {
+				curl_setopt($curl, CURLOPT_POST, true);
+				curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($parameters));
+			}
 
-        $response = curl_exec($curl);
-
-        $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-        if ($status < 200 || $status >= 300) {
-            throw new ClientException($response, $status);
-        }
-
-        return json_decode($response, true);
+			$body = curl_exec($curl);
+			$status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+		}
+		
+		// Check HTTP status
+		if ($status < 200 || $status >= 300) {
+			throw new ClientException($body, $status);
+		}
+		
+		// Decode and return response body
+		return json_decode($body, true);
     }
 }
